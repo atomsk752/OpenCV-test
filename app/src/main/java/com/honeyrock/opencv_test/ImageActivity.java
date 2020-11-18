@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;*/
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -42,6 +44,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static org.opencv.core.CvType.CV_8UC3;
+import static org.opencv.core.CvType.CV_8UC4;
 
 
 public class ImageActivity extends AppCompatActivity {
@@ -53,9 +56,9 @@ public class ImageActivity extends AppCompatActivity {
     private ImageView mImageView;
     private ImageView mEdgeImageView;
     private boolean mIsOpenCVReady = false;
-    ArrayList<Float[]> arrXY = new ArrayList<>();
+    ArrayList<int[]> arrXY = new ArrayList<>();
     public native void detectEdgeJNI(long inputImage, long outputImage, int th1, int th2);
-    public native void drawFillPoly(long outputImage,float[] arr, float[] arr2);
+    public native void drawFillPoly(long outputImage,int[] arr, int[] arr2, int th1, int th2);
 
 
     static {
@@ -165,8 +168,8 @@ public class ImageActivity extends AppCompatActivity {
 
     public void onButtonClicked2(View view) {
 
-        float[] arrX = new float[arrXY.size()];
-        float[] arrY = new float[arrXY.size()];
+        int[] arrX = new int[arrXY.size()];
+        int[] arrY = new int[arrXY.size()];
         for (int i = 0; i < arrXY.size(); i++) {
             arrX[i] = arrXY.get(i)[0];
             arrY[i] = arrXY.get(i)[1];
@@ -182,12 +185,18 @@ public class ImageActivity extends AppCompatActivity {
         Utils.matToBitmap(edge, mInputImage);
         mEdgeImageView.setImageBitmap(mInputImage);
         */
-        int[] i_arr = {400, 400};
 
 
-        Mat image = Mat.zeros(i_arr, CV_8UC3);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        Log.i("getDefaultDisplay", width+":"+height);
+        int[] i_arr = {width, height};
+        Mat image = Mat.zeros(i_arr, CV_8UC4);
         Mat outputMat = new Mat();
-        drawFillPoly(image.getNativeObjAddr(), arrX, arrY);
+        drawFillPoly(image.getNativeObjAddr(), arrX, arrY, width, height);
         Bitmap outputBitmap = Bitmap.createBitmap( image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
         if (image != null){
             Utils.matToBitmap(image, outputBitmap);
@@ -282,9 +291,45 @@ public class ImageActivity extends AppCompatActivity {
         if (action == MotionEvent.ACTION_UP){
 
             Log.i("touchEvent", curX+":"+curY);
-            arrXY.add(new Float[]{event.getX(), event.getY()});
+            arrXY.add(new int[]{(int)curX, (int)curY});
+            addPoint();
         }
 
         return true;
+    }
+    private void addPoint(){
+
+        int[] arrX = new int[arrXY.size()];
+        int[] arrY = new int[arrXY.size()];
+        for (int i = 0; i < arrXY.size(); i++) {
+            arrX[i] = arrXY.get(i)[0];
+            arrY[i] = arrXY.get(i)[1];
+        }
+        if (!mIsOpenCVReady) {
+            return;
+        }
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        Log.i("getDefaultDisplay", width+":"+height);
+        int[] i_arr = {width, height};
+        Mat image = Mat.zeros(i_arr, CV_8UC4);
+        Mat outputMat = new Mat();
+        drawFillPoly(image.getNativeObjAddr(), arrX, arrY, width, height);
+        Bitmap outputBitmap = Bitmap.createBitmap( image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
+        if (image != null){
+            Utils.matToBitmap(image, outputBitmap);
+            Log.i("Utils.matToBitmap" , "-=================");
+        }
+
+        if (outputBitmap != null){
+            mEdgeImageView.setImageBitmap(outputBitmap);
+
+            Log.i("setImageBitmap" , "-=================");
+        }
+        //arrXY.clear();
     }
 }

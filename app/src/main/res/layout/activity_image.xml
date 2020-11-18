@@ -25,28 +25,27 @@
             android:text="Confirm"/>
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/origin_iv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"/>
-
+        <ImageView
+            android:id="@+id/sample_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:layout_centerInParent="true"
+            android:src="@drawable/test_ic_babyimg"/>
         <ImageView
             android:id="@+id/edge_iv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"/>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="589dp">
-
-        </FrameLayout>
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
 
 </LinearLayout>

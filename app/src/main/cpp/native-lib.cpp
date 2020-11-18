@@ -40,36 +40,29 @@ Java_com_honeyrock_opencv_1test_ImageActivity_detectEdgeJNI(JNIEnv *env, jobject
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_honeyrock_opencv_1test_ImageActivity_drawFillPoly(JNIEnv *env, jobject thiz,
-                                                           jlong output_image, jfloatArray arr, jfloatArray arr2) {
+                                                           jlong output_image, jintArray arrX, jintArray arrY, jint x, jint y) {
     int lineType = 8;
     Point pt[2][3];
+
+    jintArray jintArray = arrX;
+    jint *int_bufX;
+    jint *int_bufY;
+    int_bufX = env->GetIntArrayElements(arrX, NULL);
+    int_bufY = env->GetIntArrayElements(arrY, NULL);
+
+    //TODO 클릭시 서클 추가
+    //TODO if문 컨디션 문제 해결
+/*    if (sizeof(jintArray)<3)
+        circle()*/
+
     RNG rng( 0xFFFFFFFF );
-/*    const int window_width = 900;
-    const int window_height = 600;
-    int x_1 = -window_width/2;
-    int x_2 = window_width*3/2;
-    int y_1 = -window_width/2;
-    int y_2 = window_width*3/2;
-    pt[0][0].x = rng.uniform(x_1, x_2);
-    pt[0][0].y = rng.uniform(y_1, y_2);
-    pt[0][1].x = rng.uniform(x_1, x_2);
-    pt[0][1].y = rng.uniform(y_1, y_2);
-    pt[0][2].x = rng.uniform(x_1, x_2);
-    pt[0][2].y = rng.uniform(y_1, y_2);
-    pt[1][0].x = rng.uniform(x_1, x_2);
-    pt[1][0].y = rng.uniform(y_1, y_2);
-    pt[1][1].x = rng.uniform(x_1, x_2);
-    pt[1][1].y = rng.uniform(y_1, y_2);
-    pt[1][2].x = rng.uniform(x_1, x_2);
-    pt[1][2].y = rng.uniform(y_1, y_2);*/
-
-
-    int w = 400;
-
+    int w = x;
     /** Create some points */
-
-    Point rook_points[1][20]; // 여기서 rook는 체스의 말의 이름입니다.
-    rook_points[0][0] = Point(w / 4.0, 7 * w / 8.0);
+    Point rook_points[1][sizeof(int_bufX)]; // 여기서 rook는 체스의 말의 이름입니다.
+    for (int i = 0; i < sizeof(int_bufX); ++i) {
+        rook_points[0][i] = Point(int_bufX[i], int_bufY[i]);
+    }
+/*    rook_points[0][0] = Point(w / 4.0, 7 * w / 8.0);
     rook_points[0][1] = Point(3 * w / 4.0, 7 * w / 8.0);
     rook_points[0][2] = Point(3 * w / 4.0, 13 * w / 16.0);
     rook_points[0][3] = Point(11 * w / 16.0, 13 * w / 16.0);
@@ -88,17 +81,18 @@ Java_com_honeyrock_opencv_1test_ImageActivity_drawFillPoly(JNIEnv *env, jobject 
     rook_points[0][16] = Point(w / 4.0, 3 * w / 8.0);
     rook_points[0][17] = Point(13 * w / 32.0, 3 * w / 8.0);
     rook_points[0][18] = Point(5 * w / 16.0, 13 * w / 16.0);
-    rook_points[0][19] = Point(w / 4.0, 13 * w / 16.0);
+    rook_points[0][19] = Point(w / 4.0, 13 * w / 16.0);*/
     const Point* ppt[1] = { rook_points[0] };
-    int npt[] = { 20 };
+    int npt[] = { sizeof(arrX) };
 
     Mat &outputMat = *(Mat *) output_image;
     //Mat image = Mat::zeros( 500, 500, CV_8UC3 );
 
     //const Point* ppt[2] = {pt[0], pt[1]};
     //int npt[] = {3, 3};
-    fillPoly( outputMat, ppt, npt, 1, Scalar(50, 255, 255, 255), lineType );
+    fillPoly( outputMat, ppt, npt, 1, Scalar(255, 255, 255, 0), lineType );
     //fillPoly( outputMat, ppt, npt, 1,(255, 0, 0), 8);
-
+    env->ReleaseIntArrayElements(arrX, int_bufX, 0);
+    env->ReleaseIntArrayElements(arrY, int_bufY, 0);
 
 }

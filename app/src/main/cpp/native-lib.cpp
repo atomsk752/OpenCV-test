@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
+#include <android/log.h>
 
 using namespace cv;
 /*#include <string>
@@ -44,53 +45,58 @@ Java_com_honeyrock_opencv_1test_ImageActivity_drawFillPoly(JNIEnv *env, jobject 
     int lineType = 8;
     Point pt[2][3];
 
+
     jintArray jintArray = arrX;
     jint *int_bufX;
     jint *int_bufY;
     int_bufX = env->GetIntArrayElements(arrX, NULL);
     int_bufY = env->GetIntArrayElements(arrY, NULL);
-
-    //TODO 클릭시 서클 추가
-    //TODO if문 컨디션 문제 해결
-/*    if (sizeof(jintArray)<3)
-        circle()*/
+    jsize arrCnt = (env)->GetArrayLength(arrX);
+    //int arrCnt = size;
+    for (int i = 0; i < arrCnt; ++i) {
+        __android_log_print(ANDROID_LOG_INFO, "int_bufX", "int_bufX is %d", int_bufX[i]);
+        __android_log_print(ANDROID_LOG_INFO, "int_bufY", "int_bufY is %d", int_bufY[i]);
+    }
+    __android_log_print(ANDROID_LOG_INFO, "arrCnt", "arrCnt is %d", arrCnt);
 
     RNG rng( 0xFFFFFFFF );
     int w = x;
     /** Create some points */
-    Point rook_points[1][sizeof(int_bufX)]; // 여기서 rook는 체스의 말의 이름입니다.
-    for (int i = 0; i < sizeof(int_bufX); ++i) {
-        rook_points[0][i] = Point(int_bufX[i], int_bufY[i]);
-    }
-/*    rook_points[0][0] = Point(w / 4.0, 7 * w / 8.0);
-    rook_points[0][1] = Point(3 * w / 4.0, 7 * w / 8.0);
-    rook_points[0][2] = Point(3 * w / 4.0, 13 * w / 16.0);
-    rook_points[0][3] = Point(11 * w / 16.0, 13 * w / 16.0);
-    rook_points[0][4] = Point(19 * w / 32.0, 3 * w / 8.0);
-    rook_points[0][5] = Point(3 * w / 4.0, 3 * w / 8.0);
-    rook_points[0][6] = Point(3 * w / 4.0, w / 8.0);
-    rook_points[0][7] = Point(26 * w / 40.0, w / 8.0);
-    rook_points[0][8] = Point(26 * w / 40.0, w / 4.0);
-    rook_points[0][9] = Point(22 * w / 40.0, w / 4.0);
-    rook_points[0][10] = Point(22 * w / 40.0, w / 8.0);
-    rook_points[0][11] = Point(18 * w / 40.0, w / 8.0);
-    rook_points[0][12] = Point(18 * w / 40.0, w / 4.0);
-    rook_points[0][13] = Point(14 * w / 40.0, w / 4.0);
-    rook_points[0][14] = Point(14 * w / 40.0, w / 8.0);
-    rook_points[0][15] = Point(w / 4.0, w / 8.0);
-    rook_points[0][16] = Point(w / 4.0, 3 * w / 8.0);
-    rook_points[0][17] = Point(13 * w / 32.0, 3 * w / 8.0);
-    rook_points[0][18] = Point(5 * w / 16.0, 13 * w / 16.0);
-    rook_points[0][19] = Point(w / 4.0, 13 * w / 16.0);*/
-    const Point* ppt[1] = { rook_points[0] };
-    int npt[] = { sizeof(arrX) };
 
     Mat &outputMat = *(Mat *) output_image;
-    //Mat image = Mat::zeros( 500, 500, CV_8UC3 );
+    __android_log_print(ANDROID_LOG_INFO, "draw", "%s", "circle");
+    if (arrCnt < 2){
 
-    //const Point* ppt[2] = {pt[0], pt[1]};
-    //int npt[] = {3, 3};
-    fillPoly( outputMat, ppt, npt, 1, Scalar(255, 255, 255, 0), lineType );
+        Point rook_points;
+        rook_points.x = int_bufX[0];
+        rook_points.y = int_bufY[0];
+        circle(outputMat, rook_points, 30, Scalar(150, 150, 150, 0), -1, 8, 0);
+        __android_log_print(ANDROID_LOG_INFO, "draw", "%s", "circle");
+    } else if (arrCnt<3){
+        Point rook_point1;
+        rook_point1.x = int_bufX[0];
+        rook_point1.y = int_bufY[0];
+        Point rook_point2;
+        rook_point2.x = int_bufX[1];
+        rook_point2.y = int_bufY[1];
+        circle(outputMat, rook_point1, 30, Scalar(150, 150, 150, 0), -1, 8, 0);
+        circle(outputMat, rook_point2, 30, Scalar(150, 150, 150, 0), -1, 8, 0);
+        __android_log_print(ANDROID_LOG_INFO, "draw", "%s", "circle");
+        __android_log_print(ANDROID_LOG_INFO, "draw", "%s", "circle");
+    } else{
+        Point rook_points[1][arrCnt]; // 여기서 rook는 체스의 말의 이름입니다.
+        for (int i = 0; i < arrCnt; ++i) {
+            rook_points[0][i] = Point(int_bufX[i], int_bufY[i]);
+        }
+        const Point* ppt[1] = { rook_points[0] };
+        int npt[] = { arrCnt };
+
+        fillPoly( outputMat, ppt, npt, 1, Scalar(150, 150, 150, 255), lineType );
+        //polylines( outputMat, ppt, npt, 1, true, Scalar(255, 255, 255, 0));
+        //fillConvexPoly(outputMat,ppt,Scalar(50, 255, 255, 0),lineType,0);
+        __android_log_print(ANDROID_LOG_INFO, "draw", "%s", "fillPoly");
+    }
+
     //fillPoly( outputMat, ppt, npt, 1,(255, 0, 0), 8);
     env->ReleaseIntArrayElements(arrX, int_bufX, 0);
     env->ReleaseIntArrayElements(arrY, int_bufY, 0);

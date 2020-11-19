@@ -317,12 +317,15 @@ public class ImageActivity extends AppCompatActivity {
         Log.i("getDefaultDisplay", width+":"+height);
         int[] i_arr = {width, height};
         Mat image = Mat.zeros(i_arr, CV_8UC4);
+        //Mat image2 = Mat.(i_arr, CV_8UC4);
         Mat outputMat = new Mat();
+        Log.i("arrX", String.valueOf(arrX.length));
         drawFillPoly(image.getNativeObjAddr(), arrX, arrY, width, height);
         Bitmap outputBitmap = Bitmap.createBitmap( image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
         if (image != null){
             Utils.matToBitmap(image, outputBitmap);
             Log.i("Utils.matToBitmap" , "-=================");
+            Log.i("image.cols()" , image.cols()+" : "+image.rows());
         }
 
         if (outputBitmap != null){
